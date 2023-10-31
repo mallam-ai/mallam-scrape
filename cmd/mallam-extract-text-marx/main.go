@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/guoyk93/rg"
 	"github.com/karrick/godirwalk"
@@ -14,7 +15,7 @@ import (
 
 var (
 	dirBase    = filepath.Join("out", "www.marxists.org", "archive", "marx", "works")
-	fileOutput = filepath.Join("out", "text-marx.txt")
+	fileOutput = filepath.Join("out", "text-marx.json")
 
 	regexpLeading4Digits = regexp.MustCompile(`^[0-9]{4}`)
 	regexpNoPrintable    = regexp.MustCompile(`[^ -~]+`)
@@ -34,6 +35,8 @@ func main() {
 
 	f := rg.Must(os.OpenFile(fileOutput, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0640))
 	defer f.Close()
+
+	enc := json.NewEncoder(f)
 
 	godirwalk.Walk(dirBase, &godirwalk.Options{
 		ErrorCallback: func(s string, err error) godirwalk.ErrorAction {
@@ -70,13 +73,25 @@ func main() {
 				lines = append(lines, strings.TrimSpace(sel.Text()))
 			})
 
-			content := strings.Join(lines, " ")
+			var title string
+			doc.Find("title").Each(func(i int, selection *goquery.Selection) {
+				title += selection.Text()
+			})
+
+			title = strings.TrimSpace(title)
+
+			content := strings.Join(lines, "\n\n")
 			content = cleanContent(content)
 
-			f.Write([]byte(content))
-			f.Write([]byte("\n"))
+			if title == "" || content == "" {
+				return nil
+			}
 
-			return nil
+			return enc.Encode(map[string]any{
+				"title":   title,
+				"content": content,
+				"url":     "https://www.marxists.org/archive/marx/works/" + strings.TrimPrefix(relPath, "/"),
+			})
 		},
 	})
 
