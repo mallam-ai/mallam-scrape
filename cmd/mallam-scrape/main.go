@@ -1,8 +1,6 @@
 package main
 
 import (
-	"github.com/gocolly/colly"
-	"github.com/guoyk93/rg"
 	"log"
 	"net/url"
 	"os"
@@ -10,6 +8,9 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/gocolly/colly"
+	"github.com/yankeguo/rg"
 )
 
 const (

@@ -3,14 +3,15 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/PuerkitoBio/goquery"
-	"github.com/guoyk93/rg"
-	"github.com/karrick/godirwalk"
 	"log"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/karrick/godirwalk"
+	"github.com/yankeguo/rg"
 )
 
 var (
